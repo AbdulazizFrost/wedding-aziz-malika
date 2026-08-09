@@ -169,10 +169,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 'VERSION:2.0',
                 'PRODID:-//Wedding//Invitation//UZ',
                 'BEGIN:VEVENT',
-                'DTSTART:20260730T000000',
-                'DTEND:20260730T235959',
-                'SUMMARY:Behzod & Mohinur To\'yi',
-                'DESCRIPTION:Sizni hayotimizdagi eng baxtli kun to\'yimizga taklif qilamiz',
+                'DTSTART:20260815T000000',
+                'DTEND:20260815T235959',
+                'SUMMARY:Aziz & Malika To\'yi',
+                'DESCRIPTION:Sizni hayotimizdagi eng baxtli kun to\'yimizga taklif qilamiz. 15-avgust 2026-yil.',
+                'LOCATION:Yakkasaroy To\'yxonasi, m-r Chukursoy',
+                'UID:aziz-malika-wedding-2026',
+                `DTSTAMP:${new Date().toISOString().replace(/[-:]/g, '').split('.')[0]}Z`,
                 'END:VEVENT',
                 'END:VCALENDAR'
             ].join('\r\n');
@@ -181,7 +184,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const url = URL.createObjectURL(blob);
             const link = document.createElement('a');
             link.href = url;
-            link.download = 'wedding-behzod-mohinur.ics';
+            link.download = 'wedding-aziz-malika.ics';
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
@@ -273,6 +276,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const submitWishBtn = document.getElementById('submitWishBtn');
     const formError = document.getElementById('formError');
     const formSuccess = document.getElementById('formSuccess');
+    const wishMessage = document.getElementById('wishMessage');
+    const charCount = document.getElementById('charCount');
+
+    // Character counter logic
+    if (wishMessage && charCount) {
+        wishMessage.addEventListener('input', () => {
+            const currentLength = wishMessage.value.length;
+            charCount.textContent = `${currentLength} / 500`;
+            if (currentLength >= 500) {
+                charCount.style.color = '#ff4444';
+            } else {
+                charCount.style.color = '';
+            }
+        });
+    }
 
     // Use Firebase Realtime Database REST API
     const apiUrl = 'https://wedding2026-cd883-default-rtdb.firebaseio.com/wishes.json';
@@ -322,19 +340,26 @@ document.addEventListener('DOMContentLoaded', () => {
             if (response.ok) {
                 const data = await response.json();
                 if (data) {
-                    // Firebase returns an object where keys are push IDs.
-                    // Object.values returns them chronologically (oldest first).
-                    // We reverse it to show newest wishes first.
                     wishesData = Object.values(data).reverse();
                 } else {
                     wishesData = [];
                 }
                 renderWishes();
+                if (formError) formError.style.display = 'none'; // clear any previous fetch error
             } else {
-                console.warn('Failed to fetch wishes. Using empty list.');
+                throw new Error('Network response was not ok');
             }
         } catch (error) {
-            console.warn('Backend not reachable. Run node server.js');
+            console.error('Failed to fetch wishes:', error);
+            if (formError) {
+                formError.textContent = "Hozircha tilaklarni yuklab bo'lmadi. Birozdan so'ng urinib ko'ring.";
+                formError.style.display = 'block';
+            }
+            // Ensure guestList is empty or shows fallback if it's the first load
+            if (wishesData.length === 0 && emptyWishes) {
+                 guestList.innerHTML = '';
+                 guestList.appendChild(emptyWishes);
+            }
         }
     };
 
