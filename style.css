@@ -40,7 +40,9 @@ body.is-opened {
 }
 
 .hero.is-open {
-    transform: translateY(-100vh); /* Slide up to reveal */
+    transform: translateY(-120vh); /* Slide up to reveal */
+    visibility: hidden;
+    pointer-events: none;
 }
 
 /* BACKGROUND */
