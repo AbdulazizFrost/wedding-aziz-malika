@@ -853,6 +853,7 @@ body.is-opened {
     justify-content: center;
     margin: 0;
     padding: 0 16px;
+    pointer-events: none; /* Let clicks pass through to buttons */
 }
 
 .divider-img {
@@ -862,6 +863,7 @@ body.is-opened {
     object-fit: contain;
     filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
     margin: -80px 0;
+    pointer-events: none; /* Let clicks pass through transparent areas */
 }
 
 .divider-leaf {
