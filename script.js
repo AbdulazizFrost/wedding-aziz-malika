@@ -20,31 +20,28 @@ document.addEventListener('DOMContentLoaded', () => {
     const bgMusic = document.getElementById('bgMusic');
     let isPlaying = false; 
 
-    // Robust iOS audio unlock
-    function unlockAudio() {
-        if (bgMusic && !isPlaying) {
-            bgMusic.play().then(() => {
-                isPlaying = true;
-                if (iconMuted) iconMuted.style.display = 'none';
-                if (iconUnmuted) iconUnmuted.style.display = 'block';
-                document.removeEventListener('touchstart', unlockAudio);
-                document.removeEventListener('click', unlockAudio);
-            }).catch(err => {
-                console.log('Audio autoplay prevented:', err);
-            });
-        }
-    }
-    document.addEventListener('touchstart', unlockAudio, { passive: true });
-    document.addEventListener('click', unlockAudio, { passive: true });
-
     if (openBtn && heroSection) {
         openBtn.addEventListener('click', (e) => {
             e.preventDefault();
             
+            // USER TAPS OPEN -> audio.play() immediately!
+            if (bgMusic) {
+                const playPromise = bgMusic.play();
+                if (playPromise !== undefined) {
+                    playPromise.then(() => {
+                        isPlaying = true;
+                        if (iconMuted) iconMuted.style.display = 'none';
+                        if (iconUnmuted) iconUnmuted.style.display = 'block';
+                    }).catch(error => {
+                        console.warn('Audio playback was blocked:', error);
+                        isPlaying = false;
+                        if (iconUnmuted) iconUnmuted.style.display = 'none';
+                        if (iconMuted) iconMuted.style.display = 'block';
+                    });
+                }
+            }
+
             openBtn.style.transform = 'scale(0.95)';
-            
-            // Try to start music here too
-            unlockAudio();
             
             setTimeout(() => {
                 openBtn.style.transform = '';
@@ -69,19 +66,27 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-
-// Toggle audio button icons
+    // Toggle audio button icons based on actual audio state
     if (audioBtn) {
         audioBtn.addEventListener('click', () => {
-            isPlaying = !isPlaying;
-            if (isPlaying) {
-                if (iconMuted) iconMuted.style.display = 'none';
-                if (iconUnmuted) iconUnmuted.style.display = 'block';
-                if (bgMusic) bgMusic.play();
-            } else {
-                if (iconUnmuted) iconUnmuted.style.display = 'none';
-                if (iconMuted) iconMuted.style.display = 'block';
-                if (bgMusic) bgMusic.pause();
+            if (bgMusic) {
+                if (bgMusic.paused) {
+                    const playPromise = bgMusic.play();
+                    if (playPromise !== undefined) {
+                        playPromise.then(() => {
+                            isPlaying = true;
+                            if (iconMuted) iconMuted.style.display = 'none';
+                            if (iconUnmuted) iconUnmuted.style.display = 'block';
+                        }).catch(error => {
+                            console.warn('Audio playback was blocked:', error);
+                        });
+                    }
+                } else {
+                    bgMusic.pause();
+                    isPlaying = false;
+                    if (iconUnmuted) iconUnmuted.style.display = 'none';
+                    if (iconMuted) iconMuted.style.display = 'block';
+                }
             }
         });
     }
