@@ -47,7 +47,7 @@ body.is-opened {
 .hero__bg {
     position: absolute;
     inset: 0;
-    background-image: url('hero.jpg');
+    background-image: url('../assets/images/hero.jpg');
     background-size: cover;
     background-position: center 20%; /* Slightly adjusted for better framing */
     z-index: 1;
@@ -97,7 +97,9 @@ body.is-opened {
     left: 0;
     width: 100%;
     height: 100%;
+    object-fit: contain;
     pointer-events: none;
+    transform: scale(1.35);
 }
 
 /* TYPOGRAPHY */
@@ -306,7 +308,7 @@ body.is-opened {
     inset: 0;
     width: 100%;
     height: 100%;
-    background-image: url('hero.jpg');
+    background-image: url('../assets/images/hero.jpg');
     background-size: cover;
     background-position: center;
     z-index: 1;
@@ -544,12 +546,12 @@ body.is-opened {
 }
 
 .groom-photo {
-    background-image: url('groom.jpg');
+    background-image: url('../assets/images/groom.jpg');
     background-position: center 20%;
 }
 
 .bride-photo {
-    background-image: url('bride.jpg');
+    background-image: url('../assets/images/bride.jpg');
     background-position: center 40%;
 }
 
@@ -848,9 +850,17 @@ body.is-opened {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 0;
-    margin-bottom: 36px;
+    margin: 0;
     padding: 0 16px;
+}
+
+.divider-img {
+    width: 100%;
+    max-width: 400px;
+    height: auto;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+    margin: -80px 0;
 }
 
 .divider-leaf {
@@ -1880,7 +1890,7 @@ body.is-opened {
     position: relative;
     width: 100%;
     min-height: auto;
-    background-image: url('hero.jpg');
+    background-image: url('../assets/images/hero.jpg');
     background-size: cover;
     background-position: center bottom;
     display: flex;
