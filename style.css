@@ -461,7 +461,7 @@ body.is-opened {
         #f6f3ff 100%
     );
     padding-bottom: 80px;
-    padding-top: 20px; /* Small padding so it looks neat, no negative margin */
+    padding-top: 0;
     z-index: 10;
     overflow-x: hidden;
 }
@@ -470,7 +470,7 @@ body.is-opened {
 .couple-card {
     background-color: #ffffff;
     border-radius: 20px;
-    margin: 0 auto; /* Reset margin to prevent clipping */
+    margin: -60px auto 0; /* Pulled up higher to overlap the photo more */
     width: 88%;
     max-width: 390px;
     padding: 42px 24px 48px;
