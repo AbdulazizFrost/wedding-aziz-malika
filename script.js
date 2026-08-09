@@ -20,22 +20,31 @@ document.addEventListener('DOMContentLoaded', () => {
     const bgMusic = document.getElementById('bgMusic');
     let isPlaying = false; 
 
+    // Robust iOS audio unlock
+    function unlockAudio() {
+        if (bgMusic && !isPlaying) {
+            bgMusic.play().then(() => {
+                isPlaying = true;
+                if (iconMuted) iconMuted.style.display = 'none';
+                if (iconUnmuted) iconUnmuted.style.display = 'block';
+                document.removeEventListener('touchstart', unlockAudio);
+                document.removeEventListener('click', unlockAudio);
+            }).catch(err => {
+                console.log('Audio autoplay prevented:', err);
+            });
+        }
+    }
+    document.addEventListener('touchstart', unlockAudio, { passive: true });
+    document.addEventListener('click', unlockAudio, { passive: true });
+
     if (openBtn && heroSection) {
         openBtn.addEventListener('click', (e) => {
             e.preventDefault();
             
             openBtn.style.transform = 'scale(0.95)';
             
-            // Try to start music on first interaction
-            if (bgMusic && !isPlaying) {
-                bgMusic.play().then(() => {
-                    isPlaying = true;
-                    if (iconMuted) iconMuted.style.display = 'none';
-                    if (iconUnmuted) iconUnmuted.style.display = 'block';
-                }).catch(err => {
-                    console.log('Audio autoplay prevented:', err);
-                });
-            }
+            // Try to start music here too
+            unlockAudio();
             
             setTimeout(() => {
                 openBtn.style.transform = '';
