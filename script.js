@@ -43,6 +43,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 // "Open" the invitation by sliding up the hero screen
                 heroSection.classList.add('is-open');
                 
+                // Completely hide hero from DOM after transition to prevent iOS overscroll glitches
+                setTimeout(() => {
+                    heroSection.style.display = 'none';
+                }, 1200);
+
                 // Allow scrolling on the body now that the cover is open
                 document.body.classList.add('is-opened');
                 

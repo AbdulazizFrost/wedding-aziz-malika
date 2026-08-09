@@ -41,8 +41,6 @@ body.is-opened {
 
 .hero.is-open {
     transform: translateY(-120vh); /* Slide up to reveal */
-    visibility: hidden;
-    pointer-events: none;
 }
 
 /* BACKGROUND */
