@@ -31,7 +31,11 @@ body.is-opened {
 /* HERO SECTION (COVER) */
 .hero {
     position: fixed; /* Fixed so it sits on top of the content */
-    inset: 0;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 100vh;
+    height: 100svh;
     z-index: 50;
     display: flex;
     flex-direction: column;
@@ -290,7 +294,6 @@ body.is-opened {
     width: 100%;
     min-height: 100vh;
     min-height: 100svh;
-    min-height: 100dvh;
     display: flex;
     flex-direction: column;
     align-items: center;
