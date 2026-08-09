@@ -99,7 +99,7 @@ body.is-opened {
     height: 100%;
     object-fit: contain;
     pointer-events: none;
-    transform: scale(1.35);
+    transform: scale(1.15); /* Reduced from 1.35 so it doesn't get cut off on mobile edges */
 }
 
 /* TYPOGRAPHY */
