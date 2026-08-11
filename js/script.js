@@ -84,8 +84,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     
+    let transitionStartTime = null;
+    const TRANSITION_DURATION = 1200; // ms
+    const lightFlash = document.getElementById('lightFlash');
+    
     // Parallax Animation Loop
-    const renderParallax = () => {
+    const renderParallax = (timestamp) => {
         if (prefersReducedMotion) return;
 
         if (!isEntering) {
@@ -97,57 +101,110 @@ document.addEventListener('DOMContentLoaded', () => {
             const maxMoveX = window.innerWidth * 0.05;
             const maxMoveY = window.innerHeight * 0.05;
             
-            // Apply translation (CSS uses 120% width/height and inset -10% to hide edges)
+            // Apply translation
             if (layerBg) layerBg.style.transform = `translate3d(${currentX * maxMoveX * multBg}px, ${currentY * maxMoveY * multBg}px, 0)`;
             if (layerMid) layerMid.style.transform = `translate3d(${currentX * maxMoveX * multMid}px, ${currentY * maxMoveY * multMid}px, 0)`;
             if (layerFg) layerFg.style.transform = `translate3d(${currentX * maxMoveX * multFg}px, ${currentY * maxMoveY * multFg}px, 0)`;
             
             requestAnimationFrame(renderParallax);
         } else {
-            // Enter transition animation
-            enterProgress += 0.012; // Animation speed
+            // Cinematic Transition Timeline
+            if (!transitionStartTime) transitionStartTime = timestamp;
+            const elapsed = timestamp - transitionStartTime;
             
-            if (enterProgress <= 1) {
-                // Ease out cubic
-                const ease = 1 - Math.pow(1 - enterProgress, 3);
+            // 0-150ms: Fade out UI immediately
+            if (heroUI) {
+                const uiOpacity = Math.max(0, 1 - (elapsed / 150));
+                heroUI.style.opacity = uiOpacity;
+                if (uiOpacity === 0) heroUI.style.display = 'none'; // Ensure it's not clickable
+            }
+            
+            // 150-650ms: Camera rushes forward
+            // We'll normalize this period (0 to 1)
+            let rushProgress = 0;
+            if (elapsed >= 150) {
+                rushProgress = Math.min((elapsed - 150) / 500, 1);
+            }
+            
+            // Aggressive cubic easing (simulating cubic-bezier(0.7, 0, 1, 1))
+            const ease = Math.pow(rushProgress, 3);
+            
+            // Scale values: fg (1->3.5), mid (1->2.5), bg (1->1.8)
+            const scaleBg = 1 + (ease * 0.8);
+            const scaleMid = 1 + (ease * 1.5);
+            const scaleFg = 1 + (ease * 2.5);
+            
+            // Motion blur effect
+            const blurMid = ease * 4; // up to 4px
+            const blurFg = ease * 12; // up to 12px
+            
+            if (layerBg) layerBg.style.transform = `translate3d(0,0,0) scale(${scaleBg})`;
+            if (layerMid) {
+                layerMid.style.transform = `translate3d(0,0,0) scale(${scaleMid})`;
+                layerMid.style.filter = `blur(${blurMid}px)`;
+            }
+            if (layerFg) {
+                layerFg.style.transform = `translate3d(0,0,0) scale(${scaleFg})`;
+                layerFg.style.filter = `blur(${blurFg}px)`;
+            }
+            
+            // 700-900ms: Light Burst Peak
+            if (lightFlash) {
+                let flashOpacity = 0;
+                if (elapsed >= 500 && elapsed < 800) {
+                    // Fade in light (500 to 800)
+                    flashOpacity = (elapsed - 500) / 300;
+                } else if (elapsed >= 800 && elapsed < 1200) {
+                    // Fade out light (800 to 1200)
+                    flashOpacity = 1 - ((elapsed - 800) / 400);
+                }
+                lightFlash.style.opacity = Math.min(1, Math.max(0, flashOpacity));
+            }
+            
+            // 800ms: Switch scenes while light is at peak brightness
+            if (elapsed >= 800 && !heroParallax.classList.contains('is-open')) {
+                heroParallax.classList.add('is-open');
                 
-                // Scale up extremely fast for FG to simulate flying through
-                const scaleBg = 1 + (ease * 0.2);
-                const scaleMid = 1 + (ease * 0.8);
-                const scaleFg = 1 + (ease * 4.0);
+                // Add class to reveal main site (triggers CSS animation)
+                document.body.classList.add('invitation-active');
                 
-                if (layerBg) layerBg.style.transform = `translate3d(0,0,0) scale(${scaleBg})`;
-                if (layerMid) layerMid.style.transform = `translate3d(0,0,0) scale(${scaleMid})`;
-                if (layerFg) layerFg.style.transform = `translate3d(0,0,0) scale(${scaleFg})`;
+                // Enable scroll on body
+                document.body.style.overflow = 'auto';
                 
-                if (heroUI) heroUI.style.opacity = Math.max(0, 1 - (enterProgress * 2));
-                
+                if (audioBtn) {
+                    audioBtn.classList.add('visible');
+                }
+            }
+            
+            if (elapsed < TRANSITION_DURATION) {
                 requestAnimationFrame(renderParallax);
             } else {
-                heroParallax.classList.add('is-open');
-                setTimeout(() => {
-                    heroParallax.style.display = 'none';
-                }, 1500);
+                // Done
+                heroParallax.style.display = 'none';
+                if (lightFlash) lightFlash.style.display = 'none';
             }
         }
     };
     
     requestAnimationFrame(renderParallax);
 
+    const startEnterTransition = () => {
+        if (isEntering) return;
+        isEntering = true;
+        playAudio();
+        
+        if (openBtn) {
+            // Button slightly brightens and scales, then disappears
+            openBtn.style.transform = 'scale(1.05)';
+            openBtn.style.filter = 'brightness(1.5)';
+        }
+    };
+
     // Enter Button Click
     if (openBtn && heroParallax) {
         openBtn.addEventListener('click', (e) => {
             e.preventDefault();
-            playAudio();
-            
-            isEntering = true; // Interrupts normal parallax loop and triggers cinematic enter
-            
-            if (audioBtn) {
-                audioBtn.classList.add('visible');
-            }
-            
-            // Unlock body scrolling immediately so they can scroll down once transition clears
-            document.body.classList.add('is-opened');
+            startEnterTransition();
         });
     }
 
