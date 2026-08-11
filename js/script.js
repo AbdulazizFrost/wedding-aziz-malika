@@ -9,60 +9,145 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => window.scrollTo(0, 0), 10);
     window.addEventListener('load', () => window.scrollTo(0, 0));
 
-    const openBtn = document.getElementById('openBtn');
-    const heroSection = document.querySelector('.hero');
-    const detailsSection = document.getElementById('details');
-    
-    // Audio button logic
+    // AUDIO LOGIC 
     const audioBtn = document.getElementById('audioBtn');
     const iconUnmuted = document.getElementById('iconUnmuted');
     const iconMuted = document.getElementById('iconMuted');
     const bgMusic = document.getElementById('bgMusic');
     let isPlaying = false; 
+    
+    const playAudio = () => {
+        if (bgMusic && bgMusic.paused) {
+            const playPromise = bgMusic.play();
+            if (playPromise !== undefined) {
+                playPromise.then(() => {
+                    isPlaying = true;
+                    if (iconMuted) iconMuted.style.display = 'none';
+                    if (iconUnmuted) iconUnmuted.style.display = 'block';
+                }).catch(error => {
+                    console.warn('Audio playback was blocked:', error);
+                    isPlaying = false;
+                    if (iconUnmuted) iconUnmuted.style.display = 'none';
+                    if (iconMuted) iconMuted.style.display = 'block';
+                });
+            }
+        }
+    };
+    
+    // ==========================================
+    // IMMERSIVE 2.5D PARALLAX HERO SECTION
+    // ==========================================
+    const heroParallax = document.getElementById('heroParallax');
+    const layerBg = document.getElementById('layerBg');
+    const layerMid = document.getElementById('layerMid');
+    const layerFg = document.getElementById('layerFg');
+    const heroUI = document.getElementById('heroUI');
+    const openBtn = document.getElementById('openBtn');
 
-    if (openBtn && heroSection) {
+    // Parallax state
+    let targetX = 0;
+    let targetY = 0;
+    let currentX = 0;
+    let currentY = 0;
+    
+    let isEntering = false;
+    let enterProgress = 0; // 0 to 1
+
+    // Multipliers for parallax depth
+    const multBg = 0.10;
+    const multMid = 0.35;
+    const multFg = 0.70;
+
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // Desktop Mouse Tracking
+    window.addEventListener('mousemove', (e) => {
+        if (isEntering || prefersReducedMotion) return;
+        // Normalize mouse coordinates from -1 to 1 (0 is center)
+        targetX = (e.clientX / window.innerWidth) * 2 - 1;
+        targetY = (e.clientY / window.innerHeight) * 2 - 1;
+    });
+
+    // Mobile Gyroscope Tracking
+    if (window.DeviceOrientationEvent) {
+        window.addEventListener('deviceorientation', (e) => {
+            if (isEntering || prefersReducedMotion) return;
+            if (e.gamma === null || e.beta === null) return;
+            
+            // gamma is left/right (-90 to 90). beta is front/back (-180 to 180).
+            // Clamp and normalize to -1 to 1
+            let x = e.gamma / 45; // roughly 45 degrees tilt max
+            let y = (e.beta - 45) / 45; // assume 45 deg is neutral holding position
+            
+            targetX = Math.max(-1, Math.min(1, x));
+            targetY = Math.max(-1, Math.min(1, y));
+        });
+    }
+    
+    // Parallax Animation Loop
+    const renderParallax = () => {
+        if (prefersReducedMotion) return;
+
+        if (!isEntering) {
+            // Lerp interpolation for smooth camera weight
+            currentX += (targetX - currentX) * 0.05;
+            currentY += (targetY - currentY) * 0.05;
+
+            // Max movement in pixels based on viewport size
+            const maxMoveX = window.innerWidth * 0.05;
+            const maxMoveY = window.innerHeight * 0.05;
+            
+            // Apply translation (CSS uses 120% width/height and inset -10% to hide edges)
+            if (layerBg) layerBg.style.transform = `translate3d(${currentX * maxMoveX * multBg}px, ${currentY * maxMoveY * multBg}px, 0)`;
+            if (layerMid) layerMid.style.transform = `translate3d(${currentX * maxMoveX * multMid}px, ${currentY * maxMoveY * multMid}px, 0)`;
+            if (layerFg) layerFg.style.transform = `translate3d(${currentX * maxMoveX * multFg}px, ${currentY * maxMoveY * multFg}px, 0)`;
+            
+            requestAnimationFrame(renderParallax);
+        } else {
+            // Enter transition animation
+            enterProgress += 0.012; // Animation speed
+            
+            if (enterProgress <= 1) {
+                // Ease out cubic
+                const ease = 1 - Math.pow(1 - enterProgress, 3);
+                
+                // Scale up extremely fast for FG to simulate flying through
+                const scaleBg = 1 + (ease * 0.2);
+                const scaleMid = 1 + (ease * 0.8);
+                const scaleFg = 1 + (ease * 4.0);
+                
+                if (layerBg) layerBg.style.transform = `translate3d(0,0,0) scale(${scaleBg})`;
+                if (layerMid) layerMid.style.transform = `translate3d(0,0,0) scale(${scaleMid})`;
+                if (layerFg) layerFg.style.transform = `translate3d(0,0,0) scale(${scaleFg})`;
+                
+                if (heroUI) heroUI.style.opacity = Math.max(0, 1 - (enterProgress * 2));
+                
+                requestAnimationFrame(renderParallax);
+            } else {
+                heroParallax.classList.add('is-open');
+                setTimeout(() => {
+                    heroParallax.style.display = 'none';
+                }, 1500);
+            }
+        }
+    };
+    
+    requestAnimationFrame(renderParallax);
+
+    // Enter Button Click
+    if (openBtn && heroParallax) {
         openBtn.addEventListener('click', (e) => {
             e.preventDefault();
+            playAudio();
             
-            // USER TAPS OPEN -> audio.play() immediately!
-            if (bgMusic) {
-                const playPromise = bgMusic.play();
-                if (playPromise !== undefined) {
-                    playPromise.then(() => {
-                        isPlaying = true;
-                        if (iconMuted) iconMuted.style.display = 'none';
-                        if (iconUnmuted) iconUnmuted.style.display = 'block';
-                    }).catch(error => {
-                        console.warn('Audio playback was blocked:', error);
-                        isPlaying = false;
-                        if (iconUnmuted) iconUnmuted.style.display = 'none';
-                        if (iconMuted) iconMuted.style.display = 'block';
-                    });
-                }
+            isEntering = true; // Interrupts normal parallax loop and triggers cinematic enter
+            
+            if (audioBtn) {
+                audioBtn.classList.add('visible');
             }
-
-            openBtn.style.transform = 'scale(0.95)';
             
-            setTimeout(() => {
-                openBtn.style.transform = '';
-                
-                // "Open" the invitation by sliding up the hero screen
-                heroSection.classList.add('is-open');
-                
-                // Completely hide hero from DOM after transition to prevent iOS overscroll glitches
-                setTimeout(() => {
-                    heroSection.style.display = 'none';
-                }, 1200);
-
-                // Allow scrolling on the body now that the cover is open
-                document.body.classList.add('is-opened');
-                
-                // Show the audio button
-                if (audioBtn) {
-                    audioBtn.classList.add('visible');
-                }
-                
-            }, 150);
+            // Unlock body scrolling immediately so they can scroll down once transition clears
+            document.body.classList.add('is-opened');
         });
     }
 

@@ -32,59 +32,26 @@
 </head>
 <body>
 
-    <main class="hero">
-        <!-- Background Layer -->
-        <div class="hero__bg"></div>
-        <div class="hero__overlay"></div>
-
-        <!-- Main Content -->
-        <div class="hero__content">
-            
-            <div class="circle-frame">
-                <!-- Decorative SVG Frame -->
-                <img class="circle-svg" src="assets/images/circle.png" alt="Wreath">
-
-                <div class="text-group">
-                    <p class="greeting">Assalomu alaykum, aziz mehmon</p>
-                    <p class="subtitle">Sizni to'yimizga taklif qilamiz</p>
-                </div>
-
-                <h1 class="names">
-                    Aziz &amp;<br>
-                    Malika
-                </h1>
-            </div>
-
+    <main class="hero-parallax" id="heroParallax">
+        <div class="parallax-layer layer-bg" id="layerBg">
+            <img src="assets/images/background.png" alt="Background">
         </div>
-
-        <!-- Bottom Panel -->
-        <div class="bottom-panel">
-            <svg class="curve" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 390 80" preserveAspectRatio="none">
-                <!-- Smile (concave) curve matching the design -->
-                <path d="M0,0 Q195,100 390,0 L390,80 L0,80 Z" fill="url(#panelGradient)"/>
-                <defs>
-                    <linearGradient id="panelGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                        <stop offset="0%" stop-color="#e8dbfa" stop-opacity="0.85" />
-                        <stop offset="100%" stop-color="#e8dbfa" stop-opacity="1" />
-                    </linearGradient>
-                </defs>
-            </svg>
-            
-            <div class="bottom-panel__content">
-                <div class="button-wrapper">
-                    <span class="arrow-faint">&laquo;</span>
-                    
-                    <button class="open-btn" id="openBtn">
-                        <svg class="envelope-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
-                            <rect x="3" y="6" width="18" height="13" rx="2" ry="2"></rect>
-                            <path d="M3 6l9 6 9-6"></path>
-                        </svg>
-                        <span>Taklifnomani ochish</span>
-                    </button>
-                    
-                    <span class="arrow-faint">&raquo;</span>
-                </div>
+        <div class="parallax-layer layer-mid" id="layerMid">
+            <img src="assets/images/midground.png" alt="Midground">
+        </div>
+        <div class="parallax-layer layer-fg" id="layerFg">
+            <img src="assets/images/foreground.png" alt="Foreground">
+        </div>
+        
+        <div class="hero-ui" id="heroUI">
+            <div class="hero-text-content">
+                <p class="hero-subtitle-top">Приключение в</p>
+                <h1 class="hero-title">СТРАНА ЧУДЕС<br>ЖДЕТ ВАС</h1>
+                <p class="hero-subtitle">Приглашаем вас провести волшебный вечер</p>
             </div>
+            <button class="hero-enter-btn" id="openBtn">
+                <span class="btn-text">[ НАЖМИТЕ ДЛЯ ВХОДА ]</span>
+            </button>
         </div>
     </main>
 

@@ -28,230 +28,159 @@ body.is-opened {
     overflow-x: hidden;
 }
 
-/* HERO SECTION (COVER) */
-.hero {
-    position: fixed; /* Fixed so it sits on top of the content */
+/* ==========================================================================
+   IMMERSIVE 2.5D PARALLAX HERO SECTION
+   ========================================================================== */
+.hero-parallax {
+    position: fixed;
     top: 0;
     left: 0;
     right: 0;
+    bottom: 0;
+    width: 100vw;
     height: 100vh;
     height: 100svh;
     z-index: 50;
-    display: flex;
-    flex-direction: column;
     overflow: hidden;
-    transition: transform 1.2s cubic-bezier(0.77, 0, 0.175, 1);
+    background-color: #000;
+    /* Transition when entering */
+    transition: opacity 1.5s cubic-bezier(0.77, 0, 0.175, 1), visibility 1.5s;
+    perspective: 1000px;
 }
 
-.hero.is-open {
-    transform: translateY(-120vh); /* Slide up to reveal */
-}
-
-/* BACKGROUND */
-.hero__bg {
-    position: absolute;
-    inset: 0;
-    background-image: url('../assets/images/hero.jpg');
-    background-size: cover;
-    background-position: center 20%; /* Slightly adjusted for better framing */
-    z-index: 1;
+.hero-parallax.is-open {
     opacity: 0;
-    animation: fadeIn 1.5s ease-out forwards;
+    visibility: hidden;
+    pointer-events: none;
 }
 
-.hero__overlay {
+/* Base layer styling */
+.parallax-layer {
     position: absolute;
-    inset: 0;
-    background: radial-gradient(circle at center, rgba(10, 10, 20, 0.5) 0%, rgba(0, 0, 0, 0.2) 100%);
-    z-index: 2;
-    opacity: 0;
-    animation: fadeIn 1.5s ease-out 0.5s forwards;
-}
-
-/* MAIN CONTENT (CIRCLE) */
-.hero__content {
-    position: relative;
-    z-index: 3;
-    flex: 1;
+    inset: -10%; /* Oversized container to prevent black edges during parallax */
+    width: 120%;
+    height: 120%;
     display: flex;
     justify-content: center;
     align-items: center;
-    padding-bottom: 120px; /* Space for the bottom panel */
-    padding-top: var(--s-top);
+    will-change: transform;
+    opacity: 0; /* Starts hidden for intro animation */
 }
 
-.circle-frame {
-    position: relative;
-    width: clamp(320px, 95vw, 380px); /* Increased size to fit the beautiful new wreath */
-    aspect-ratio: 1 / 1;
+.parallax-layer img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform-origin: center center;
+}
+
+/* Layer specific Z-Index and Animation */
+.layer-bg {
+    z-index: 1;
+    animation: fadeLayerIn 2s ease-out 0.2s forwards;
+}
+.layer-mid {
+    z-index: 2;
+    animation: fadeLayerIn 2s ease-out 1.2s forwards;
+}
+.layer-fg {
+    z-index: 3;
+    animation: fadeLayerIn 2.5s ease-out 2.2s forwards;
+}
+
+/* UI Overlay */
+.hero-ui {
+    position: absolute;
+    inset: 0;
+    z-index: 10;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     text-align: center;
-    color: var(--primary-text);
-    padding: 40px;
-    
-    opacity: 0;
-    animation: scaleIn 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) 0.8s forwards;
-}
-
-.circle-svg {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    pointer-events: none;
-    transform: scale(1.15); /* Reduced from 1.35 so it doesn't get cut off on mobile edges */
-}
-
-/* TYPOGRAPHY */
-.text-group {
-    margin-bottom: 25px;
-    opacity: 0;
-    animation: slideUp 1s ease-out 1.2s forwards;
-}
-
-.greeting {
-    font-size: 13px;
-    font-weight: 600;
-    letter-spacing: 0.5px;
-    margin-bottom: 8px;
-    text-shadow: 0 2px 10px rgba(0,0,0,0.3);
-}
-
-.subtitle {
-    font-size: 11px;
-    font-weight: 400;
-    letter-spacing: 0.2px;
-    text-shadow: 0 2px 10px rgba(0,0,0,0.3);
-}
-
-.names {
-    font-family: 'Great Vibes', cursive;
-    font-size: clamp(42px, 12vw, 54px);
-    font-weight: 400;
-    line-height: 1.1;
-    text-shadow: 0 4px 15px rgba(0,0,0,0.4);
-    
-    opacity: 0;
-    animation: scaleIn 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) 1.5s forwards;
-}
-
-/* BOTTOM PANEL */
-.bottom-panel {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    z-index: 4;
-    display: flex;
-    flex-direction: column;
-    
-    opacity: 0;
-    animation: slideUp 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) 2s forwards;
-}
-
-.curve {
-    width: 100%;
-    height: clamp(60px, 15vh, 100px);
-    display: block;
-    margin-bottom: -1px; /* Fix gap issue on some browsers */
-}
-
-.bottom-panel__content {
-    background: var(--panel-bg); /* Matches the gradient stop of the SVG */
-    padding-bottom: calc(30px + var(--s-bot));
-    padding-top: 10px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-/* BUTTON */
-.button-wrapper {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
-
-.arrow-faint {
     color: #fff;
-    font-size: 20px;
-    opacity: 0.7;
-    font-weight: 300;
+    padding: 20px;
+    pointer-events: none; /* Let clicks pass through except on buttons */
 }
 
-.open-btn {
-    background-color: var(--accent-purple);
-    color: #ffffff;
-    border: none;
-    border-radius: 40px;
-    padding: 16px 36px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 6px;
+.hero-text-content {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: textRiseUp 1.5s cubic-bezier(0.2, 0.8, 0.2, 1) 3.5s forwards;
+    text-shadow: 0 4px 20px rgba(0,0,0,0.6);
+}
+
+.hero-subtitle-top {
+    font-family: 'Amiri', serif;
+    font-size: clamp(14px, 4vw, 18px);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.hero-title {
+    font-family: 'Amiri', serif;
+    font-size: clamp(32px, 8vw, 54px);
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: 1px;
+    margin-bottom: 15px;
+}
+
+.hero-subtitle {
     font-family: 'Montserrat', sans-serif;
-    font-size: 14px;
+    font-size: clamp(12px, 3vw, 14px);
+    font-weight: 300;
+    letter-spacing: 0.5px;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.hero-enter-btn {
+    pointer-events: auto;
+    margin-top: 50px;
+    background: transparent;
+    border: none;
+    color: #fff;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 13px;
     font-weight: 500;
+    letter-spacing: 2px;
+    text-transform: uppercase;
     cursor: pointer;
-    box-shadow: 0 6px 15px rgba(232, 139, 197, 0.35);
-    transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s ease;
-    
-    /* Subtle breathing animation */
-    animation: buttonPulse 3s infinite 3s;
+    padding: 15px 30px;
+    opacity: 0;
+    animation: fadeInBtn 1s ease-out 4.5s forwards;
+    transition: transform 0.3s ease, text-shadow 0.3s ease;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.5);
 }
 
-.open-btn:hover, .open-btn:focus {
-    transform: translateY(-2px) scale(1.02);
-    box-shadow: 0 10px 25px rgba(232, 139, 197, 0.5);
-    outline: none;
-}
-
-.open-btn:active {
-    transform: translateY(1px) scale(0.98);
-    box-shadow: 0 4px 10px rgba(232, 139, 197, 0.3);
-}
-
-.envelope-icon {
-    width: 28px;
-    height: 28px;
+.hero-enter-btn:hover {
+    transform: scale(1.05);
+    text-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
 }
 
 /* KEYFRAMES */
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+@keyframes fadeLayerIn {
+    from { opacity: 0; transform: scale(1.05); }
+    to { opacity: 1; transform: scale(1); }
 }
 
-@keyframes slideUp {
+@keyframes textRiseUp {
     from { opacity: 0; transform: translateY(30px); }
     to { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes scaleIn {
-    from { opacity: 0; transform: scale(0.92); }
-    to { opacity: 1; transform: scale(1); }
-}
-
-@keyframes buttonPulse {
-    0% { transform: scale(1); box-shadow: 0 6px 15px rgba(232, 139, 197, 0.35); }
-    50% { transform: scale(1.03); box-shadow: 0 10px 25px rgba(232, 139, 197, 0.5); }
-    100% { transform: scale(1); box-shadow: 0 6px 15px rgba(232, 139, 197, 0.35); }
+@keyframes fadeInBtn {
+    from { opacity: 0; }
+    to { opacity: 1; }
 }
 
 /* REDUCED MOTION */
 @media (prefers-reduced-motion: reduce) {
-    .hero__bg, .hero__overlay, .circle-frame, .text-group, .names, .bottom-panel {
+    .parallax-layer, .hero-text-content, .hero-enter-btn {
         animation-duration: 0.1s;
         animation-delay: 0s;
-    }
-    .open-btn {
-        animation: none;
-        transition: none;
     }
 }
 
